@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Taste of Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Raleway:wght@300;400;500;600;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="lotus-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="20" cy="20" rx="5" ry="9" fill="none" stroke="#D4A843" stroke-width="1.2" transform="rotate(0 20 20)"/>
+      <ellipse cx="20" cy="20" rx="5" ry="9" fill="none" stroke="#D4A843" stroke-width="1.2" transform="rotate(45 20 20)"/>
+      <ellipse cx="20" cy="20" rx="5" ry="9" fill="none" stroke="#D4A843" stroke-width="1.2" transform="rotate(90 20 20)"/>
+      <ellipse cx="20" cy="20" rx="5" ry="9" fill="none" stroke="#D4A843" stroke-width="1.2" transform="rotate(135 20 20)"/>
+      <circle cx="20" cy="20" r="3" fill="#D4A843"/>
+    </svg>
+    A Taste of Home
+  </a>
+  <ul class="nav-links">
+    <li><a href="#heritage">Heritage</a></li>
+    <li><a href="#food">Food</a></li>
+    <li><a href="#people">People</a></li>
+    <li><a href="#restaurants">Restaurants</a></li>
+    <li><a href="#world">World</a></li>
+    <li><a href="#" onclick="openPopup(event)">Menu</a></li>
+  </ul>
+  <div class="hamburger" onclick="toggleMobile()" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ── Mobile Menu ── -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-btn" onclick="toggleMobile()">✕</button>
+  <a href="#heritage" onclick="toggleMobile()">Heritage</a>
+  <a href="#food" onclick="toggleMobile()">Food</a>
+  <a href="#people" onclick="toggleMobile()">People</a>
+  <a href="#restaurants" onclick="toggleMobile()">Restaurants</a>
+  <a href="#world" onclick="toggleMobile()">World</a>
+</div>
+
+<!-- ── Hero ── -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+
+  <!-- Lanterns -->
+  <div class="lanterns">
+    <div class="lantern"><div class="lantern-string"></div><div class="lantern-body"></div></div>
+    <div class="lantern"><div class="lantern-string"></div><div class="lantern-body" style="background:linear-gradient(135deg,#D4A843,#8B6A1A)"></div></div>
+    <div class="lantern"><div class="lantern-string"></div><div class="lantern-body"></div></div>
+    <div class="lantern"><div class="lantern-string"></div><div class="lantern-body" style="background:linear-gradient(135deg,#4A7C59,#1A3020)"></div></div>
+    <div class="lantern"><div class="lantern-string"></div><div class="lantern-body"></div></div>
+  </div>
+
+  <!-- Bamboo -->
+  <svg class="bamboo-left" viewBox="0 0 60 400" fill="none">
+    <rect x="20" y="0" width="12" height="380" rx="6" fill="#4A7C59"/>
+    <line x1="20" y1="60" x2="0" y2="40" stroke="#4A7C59" stroke-width="3"/>
+    <line x1="32" y1="120" x2="52" y2="100" stroke="#4A7C59" stroke-width="3"/>
+    <line x1="20" y1="190" x2="0" y2="170" stroke="#4A7C59" stroke-width="3"/>
+    <line x1="32" y1="260" x2="55" y2="240" stroke="#4A7C59" stroke-width="3"/>
+    <line x1="20" y1="330" x2="0" y2="310" stroke="#4A7C59" stroke-width="3"/>
+    <ellipse cx="26" cy="60" rx="6" ry="2" fill="#3A5C45"/>
+    <ellipse cx="26" cy="120" rx="6" ry="2" fill="#3A5C45"/>
+    <ellipse cx="26" cy="190" rx="6" ry="2" fill="#3A5C45"/>
+    <ellipse cx="26" cy="260" rx="6" ry="2" fill="#3A5C45"/>
+    <ellipse cx="26" cy="330" rx="6" ry="2" fill="#3A5C45"/>
+  </svg>
+  <svg class="bamboo-right" viewBox="0 0 60 400" fill="none">
+    <rect x="20" y="0" width="12" height="380" rx="6" fill="#4A7C59"/>
+    <line x1="20" y1="60" x2="0" y2="40" stroke="#4A7C59" stroke-width="3"/>
+    <line x1="32" y1="120" x2="52" y2="100" stroke="#4A7C59" stroke-width="3"/>
+    <line x1="20" y1="190" x2="0" y2="170" stroke="#4A7C59" stroke-width="3"/>
+    <line x1="32" y1="260" x2="55" y2="240" stroke="#4A7C59" stroke-width="3"/>
+    <line x1="20" y1="330" x2="0" y2="310" stroke="#4A7C59" stroke-width="3"/>
+    <ellipse cx="26" cy="60" rx="6" ry="2" fill="#3A5C45"/>
+    <ellipse cx="26" cy="120" rx="6" ry="2" fill="#3A5C45"/>
+    <ellipse cx="26" cy="190" rx="6" ry="2" fill="#3A5C45"/>
+    <ellipse cx="26" cy="260" rx="6" ry="2" fill="#3A5C45"/>
+    <ellipse cx="26" cy="330" rx="6" ry="2" fill="#3A5C45"/>
+  </svg>
+
+  <p class="hero-eyebrow">Warmth · Flavour · Story</p>
+  <h1 class="hero-title">
+    Fire, Herbs<br>
+    <span class="accent-line">&amp; Heart.</span>
+    <span class="highlight">A Taste<br>of Home.</span>
+  </h1>
+  <div class="hero-divider"></div>
+  <p class="hero-sub">Where the smoky heat of the open grill meets the fragrant soul of Vietnamese kitchens. Every dish carries a memory, every bite tells a story.</p>
+  <div class="hero-cta">
+    <a href="#cards" class="btn-primary"><span>Discover Our Story</span></a>
+  </div>
+</section>
+
+<!-- ── Red Ticker Band ── -->
+<div class="chili-band">
+  <div class="chili-ticker" id="ticker">
+    <span>Slow-Grilled Over Charcoal</span>
+    <span>Marinated with Lemongrass &amp; Chilli</span>
+    <span>Fresh Herbs from Our Garden</span>
+    <span>Nourishing Families Since 2019</span>
+    <span>A Taste of Home — Ho Chi Minh City</span>
+    <span>Slow-Grilled Over Charcoal</span>
+    <span>Marinated with Lemongrass &amp; Chilli</span>
+    <span>Fresh Herbs from Our Garden</span>
+    <span>Nourishing Families Since 2019</span>
+    <span>A Taste of Home — Ho Chi Minh City</span>
+  </div>
+</div>
+
+<!-- ── Cards / Explore Grid ── -->
+<section class="cards-section" id="cards">
+  <div class="cards-intro">
+    <p class="section-label">Explore Everything</p>
+    <h2 class="section-title" style="color:var(--warm-cream)">Five Paths Into<br><em style="color:var(--gold)">Our World</em></h2>
+    <p class="section-body">From the roots of our recipes to the hands that cook them — every corner of our story is worth exploring.</p>
+  </div>
+
+  <div class="cards-grid">
+    <a href="#heritage" class="card card-heritage">
+      <div class="card-img"></div>
+      <div class="card-overlay"></div>
+      <div class="card-content">
+        <p class="card-label">Explore</p>
+        <h3 class="card-title">Heritage</h3>
+        <p class="card-desc">Our roots run deep — from riverside villages to city kitchens. Discover how tradition shapes every dish we serve.</p>
+        <span class="card-arrow">Learn More</span>
+      </div>
+    </a>
+    <a href="#food" class="card card-food">
+      <div class="card-img"></div>
+      <div class="card-overlay"></div>
+      <div class="card-content">
+        <p class="card-label">Explore</p>
+        <h3 class="card-title">Food</h3>
+        <p class="card-desc">Pho, bún bò, and fire-licked grills. Our menu is a love letter to Vietnamese home cooking, elevated with care.</p>
+        <span class="card-arrow">Our Menu</span>
+      </div>
+    </a>
+    <a href="#people" class="card card-people">
+      <div class="card-img"></div>
+      <div class="card-overlay"></div>
+      <div class="card-content">
+        <p class="card-label">Explore</p>
+        <h3 class="card-title">People</h3>
+        <p class="card-desc">Behind the grill, behind the counter, and in the community — our people are the heart of everything we do.</p>
+        <span class="card-arrow">Meet the Team</span>
+      </div>
+    </a>
+    <a href="#restaurants" class="card card-restaurants">
+      <div class="card-img"></div>
+      <div class="card-overlay"></div>
+      <div class="card-content">
+        <p class="card-label">Explore</p>
+        <h3 class="card-title">Restaurants</h3>
+        <p class="card-desc">Each of our spaces is designed to feel like you've walked into someone's home — art, warmth, and all.</p>
+        <span class="card-arrow">Find a Table</span>
+      </div>
+    </a>
+    <a href="#world" class="card card-world">
+      <div class="card-img"></div>
+      <div class="card-overlay"></div>
+      <div class="card-content">
+        <p class="card-label">Explore</p>
+        <h3 class="card-title">World</h3>
+        <p class="card-desc">The flavours of Vietnam, ready to travel. Find us in your city and bring a taste of home wherever you are.</p>
+        <span class="card-arrow">Find Us</span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ── Welcome / Heritage Section ── -->
+<section class="welcome-section" id="heritage">
+  <div class="welcome-inner">
+    <div class="welcome-visual">
+      <div class="welcome-frame welcome-frame-1"></div>
+      <div class="welcome-frame welcome-frame-2">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">Fresh Ingredients<br>Every Morning</span>
+      </div>
+    </div>
+    <div class="welcome-text">
+      <p class="section-label">A Warm Welcome</p>
+      <h2 class="section-title">To the Worldwide Home of<br><span>A Taste of Home</span></h2>
+      <p class="section-body">If you're looking for your nearest restaurant, visit our World page to find the table waiting for you. Otherwise, pull up a chair and let us share the story behind our smoke-kissed, herb-layered Vietnamese cooking — from the families who inspired it to the fires that bring it to life.</p>
+      <div class="welcome-quote">
+        <p>"Every dish we make begins with a question: does this taste like home?"</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Philosophy / Food Section ── -->
+<section class="philosophy-section" id="food">
+  <div class="philosophy-inner">
+    <div style="text-align:center; max-width:560px; margin:0 auto;">
+      <p class="section-label" style="justify-content:center;">Our Philosophy</p>
+      <h2 class="section-title" style="color:var(--warm-cream);">Fire, Soul &amp;<br><em style="color:var(--gold)">Honest Ingredients</em></h2>
+    </div>
+    <div class="philosophy-grid">
+      <div class="phil-card">
+        <span class="phil-icon">🔥</span>
+        <h3 class="phil-title">The Grill</h3>
+        <p class="phil-body">We cook over charcoal the way grandmothers did — slowly, patiently, letting the fire do its work. The smoke is the seasoning you can't fake.</p>
+        <div class="phil-divider"></div>
+      </div>
+      <div class="phil-card">
+        <span class="phil-icon">🌿</span>
+        <h3 class="phil-title">The Herbs</h3>
+        <p class="phil-body">Rau thơm, lemongrass, laksa leaf, perilla — our herb garden is harvested each morning. Fresh is not optional. It's the whole point.</p>
+        <div class="phil-divider"></div>
+      </div>
+      <div class="phil-card">
+        <span class="phil-icon">🏮</span>
+        <h3 class="phil-title">The Warmth</h3>
+        <p class="phil-body">A meal at A Taste of Home is never just food. It's a table laid with care, a bowl delivered with pride, a moment shared with family.</p>
+        <div class="phil-divider"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Green Ticker Band ── -->
+<div style="background:var(--green); padding:1rem 2rem; overflow:hidden; white-space:nowrap; border-top:1px solid rgba(255,255,255,0.1);">
+  <div class="chili-ticker" style="animation-duration:25s;">
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">🌿 No artificial flavours</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">🥬 Locally sourced vegetables</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">🐓 Free-range poultry</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">♻️ Zero food waste pledge</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">🌱 Supporting local farmers</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">🌿 No artificial flavours</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">🥬 Locally sourced vegetables</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">🐓 Free-range poultry</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">♻️ Zero food waste pledge</span>
+    <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; color:rgba(250,243,232,0.9);">🌱 Supporting local farmers</span>
+  </div>
+</div>
+
+<!-- ── People & Restaurants Section ── -->
+<section style="background:var(--warm-cream); padding:5rem 2rem;" id="people">
+  <div style="max-width:1100px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;">
+    <div>
+      <p class="section-label">Our People</p>
+      <h2 class="section-title">The Hands<br><span style="color:var(--red); font-style:italic;">Behind Every Bowl</span></h2>
+      <p class="section-body">From Hoa, who has been stirring our pho broth since day one, to young Minh learning the grill from his uncle — our team carries this kitchen forward with love.</p>
+      <a href="#" style="display:inline-block; margin-top:1.5rem; color:var(--red); font-weight:700; font-size:0.8rem; letter-spacing:0.15em; text-transform:uppercase; text-decoration:none; border-bottom:2px solid var(--red); padding-bottom:2px; transition:opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">Meet the Family →</a>
+    </div>
+    <div id="restaurants">
+      <p class="section-label">Our Spaces</p>
+      <h2 class="section-title">Where Design<br><span style="color:var(--green); font-style:italic;">Meets Comfort</span></h2>
+      <p class="section-body">Each restaurant is adorned with original Vietnamese folk art, handcrafted ceramics, and the soft glow of silk lanterns. We believe beautiful surroundings make food taste even better.</p>
+      <a href="#" style="display:inline-block; margin-top:1.5rem; color:var(--green); font-weight:700; font-size:0.8rem; letter-spacing:0.15em; text-transform:uppercase; text-decoration:none; border-bottom:2px solid var(--green); padding-bottom:2px; transition:opacity 0.2s;" onmouseover="this.style.opacity=0.7" onmouseout="this.style.opacity=1">See Our Restaurants →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── World / CTA Banner ── -->
+<section style="background:var(--deep-red); padding:4rem 2rem; text-align:center; position:relative; overflow:hidden;" id="world">
+  <div style="position:absolute; inset:0; background:url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22%3E%3Ccircle cx=%2220%22 cy=%2220%22 r=%221%22 fill=%22%23FAF3E8%22 opacity=%220.06%22/%3E%3C/svg%3E');"></div>
+  <div style="position:relative; z-index:1; max-width:600px; margin:0 auto;">
+    <p style="font-size:0.7rem; letter-spacing:0.3em; text-transform:uppercase; color:rgba(250,243,232,0.7); margin-bottom:1rem;">Find Your Table</p>
+    <h2 style="font-family:'Playfair Display',serif; font-size:clamp(2rem,5vw,3.5rem); color:var(--warm-cream); font-weight:900; line-height:1.1; margin-bottom:1.2rem;">A Table is Waiting<br><em style="color:var(--gold);">For You</em></h2>
+    <p style="color:rgba(250,243,232,0.7); line-height:1.7; margin-bottom:2rem; font-size:0.95rem;">Wherever you are in Vietnam — or the world — we'd love to welcome you home. Find your nearest A Taste of Home and book your seat.</p>
+    <a href="#" class="btn-primary" style="background:var(--gold); color:var(--dark);"><span>Find a Restaurant</span></a>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="brand-name">A Taste of Home</div>
+        <p>Honouring Vietnamese home cooking, one fire-grilled dish at a time.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="#heritage">Our Heritage</a></li>
+          <li><a href="#food">Our Food</a></li>
+          <li><a href="#people">Our People</a></li>
+          <li><a href="#restaurants">Our Restaurants</a></li>
+          <li><a href="#world">Find Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>More</h4>
+        <ul>
+          <li><a href="#">Catering</a></li>
+          <li><a href="#">Gift Vouchers</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Social</h4>
+        <ul>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Facebook</a></li>
+          <li><a href="#">TikTok</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 A Taste of Home. All rights reserved.</p>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Use</a>
+        <a href="#">Site Map</a>
+        <a href="#">FAQs</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Scroll to Top Button ── -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<!-- ── Cookie Banner ── -->
+<div class="cookie-banner" id="cookieBanner">
+  <p><strong>Bánh quy — but not the edible kind.</strong> We use cookies to make your experience even more delicious. By accepting, you agree we can do just that.</p>
+  <div class="cookie-btns">
+    <button class="cookie-btn accept" onclick="dismissCookie()">Yes, I'm Happy</button>
+    <button class="cookie-btn" onclick="dismissCookie()">No Thanks</button>
+    <button class="cookie-btn" onclick="dismissCookie()">Manage Cookies</button>
+  </div>
+</div>
+
+<!-- ── Navigation Popup ── -->
+<div class="popup-overlay" id="popup">
+  <div class="popup-box">
+    <button class="popup-close" onclick="closePopup()">✕</button>
+    <p class="popup-eyebrow">Navigation</p>
+    <h2 class="popup-title">Where would you like to go?</h2>
+    <p class="popup-body">Explore the stories, food, and people that make A Taste of Home what it is.</p>
+    <ul class="popup-nav">
+      <li><a href="#heritage" onclick="closePopup()">Heritage — Our Story</a></li>
+      <li><a href="#food" onclick="closePopup()">Food — Our Menu</a></li>
+      <li><a href="#people" onclick="closePopup()">People — Our Family</a></li>
+      <li><a href="#restaurants" onclick="closePopup()">Restaurants — Our Spaces</a></li>
+      <li><a href="#world" onclick="closePopup()">World — Find Us</a></li>
+    </ul>
+    <div class="popup-links">
+      <a href="#">FAQs</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Site Map</a>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
