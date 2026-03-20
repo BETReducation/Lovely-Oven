@@ -1,0 +1,603 @@
+
+<style>
+:root {
+  --olive: #B5A882; --olive-light: #CFC8A8; --olive-dark: #8A7D5A;
+  --olive-darker: #5C5035; --parchment: #EDE8D8; --ink: #2C2210;
+  --accent: #C4A35A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.app { max-width: 820px; margin: 0 auto; padding: 1rem 0; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.tab {
+  padding: 8px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
+  border: none; background: none; color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s;
+}
+.tab.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
+.tab:hover:not(.active) { color: var(--color-text-primary); }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+.metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.metric-value { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.metric-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 3px; }
+.metric-value.positive { color: var(--color-text-success); }
+.metric-value.negative { color: var(--color-text-danger); }
+
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px; }
+.form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-row.full { grid-template-columns: 1fr; }
+label { display: block; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+input, select, textarea { width: 100%; font-size: 13px; }
+textarea { height: 60px; resize: none; }
+
+.btn { padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; border-radius: var(--border-radius-md); transition: all 0.15s; }
+.btn-primary { background: var(--color-text-primary); color: var(--color-background-primary); border: none; }
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary { background: none; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-primary); }
+.btn-secondary:hover { background: var(--color-background-secondary); }
+.btn-danger { background: none; border: 0.5px solid var(--color-border-danger); color: var(--color-text-danger); font-size: 12px; padding: 4px 10px; }
+.btn-danger:hover { background: var(--color-background-danger); }
+
+.upload-zone {
+  border: 1.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg);
+  padding: 2rem; text-align: center; cursor: pointer; transition: background 0.15s; position: relative;
+}
+.upload-zone:hover { background: var(--color-background-secondary); }
+.upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon { font-size: 28px; margin-bottom: 8px; color: var(--color-text-secondary); }
+.upload-text { font-size: 13px; color: var(--color-text-secondary); }
+.upload-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; }
+
+.ai-result { background: var(--color-background-info); border: 0.5px solid var(--color-border-info); border-radius: var(--border-radius-md); padding: 14px; margin: 12px 0; }
+.ai-result-title { font-size: 12px; font-weight: 500; color: var(--color-text-info); margin-bottom: 8px; }
+.ai-item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.ai-item-name { font-size: 13px; color: var(--color-text-primary); flex: 1; }
+.ai-item-amt { font-size: 13px; font-weight: 500; color: var(--color-text-primary); min-width: 100px; text-align: right; }
+.ai-item-cat { font-size: 11px; background: var(--color-background-secondary); padding: 2px 8px; border-radius: 20px; color: var(--color-text-secondary); }
+
+.status-pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.pill-scanning { background: var(--color-background-warning); color: var(--color-text-warning); }
+.pill-done { background: var(--color-background-success); color: var(--color-text-success); }
+.pill-error { background: var(--color-background-danger); color: var(--color-text-danger); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { text-align: left; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); letter-spacing: 0.04em; }
+.data-table td { padding: 9px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: top; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--color-background-secondary); }
+.amount-col { text-align: right; font-variant-numeric: tabular-nums; }
+.profit-pos { color: var(--color-text-success); font-weight: 500; }
+.profit-neg { color: var(--color-text-danger); font-weight: 500; }
+
+.order-items-list { margin: 8px 0; }
+.order-item-entry { display: grid; grid-template-columns: 2fr 80px 100px 28px; gap: 6px; align-items: end; margin-bottom: 6px; }
+.remove-btn { width: 28px; height: 36px; border: 0.5px solid var(--color-border-secondary); background: none; color: var(--color-text-secondary); cursor: pointer; border-radius: var(--border-radius-md); font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.remove-btn:hover { background: var(--color-background-danger); color: var(--color-text-danger); }
+.add-item-btn { font-size: 12px; color: var(--color-text-info); background: none; border: none; cursor: pointer; padding: 4px 0; }
+.add-item-btn:hover { text-decoration: underline; }
+
+.section-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px; }
+.divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1rem 0; }
+.empty-state { text-align: center; padding: 2rem; color: var(--color-text-tertiary); font-size: 13px; }
+.badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+.badge-cost { background: var(--color-background-danger); color: var(--color-text-danger); }
+.badge-revenue { background: var(--color-background-success); color: var(--color-text-success); }
+
+.chart-wrap { position: relative; height: 200px; margin-top: 1rem; }
+.img-preview { max-width: 100%; max-height: 180px; border-radius: var(--border-radius-md); margin: 8px 0; object-fit: contain; display: block; }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--color-border-secondary); border-top-color: var(--color-text-primary); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.total-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 10px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); margin-top: 8px; font-size: 13px; font-weight: 500; }
+.lang-toggle { display: flex; gap: 4px; align-items: center; font-size: 12px; color: var(--color-text-secondary); }
+.lang-btn { padding: 3px 8px; font-size: 11px; border: 0.5px solid var(--color-border-secondary); background: none; color: var(--color-text-secondary); border-radius: var(--border-radius-md); cursor: pointer; }
+.lang-btn.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.app-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); }
+.app-subtitle { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+</style>
+
+<div class="app">
+  <div class="header-row">
+    <div>
+      <div class="app-title" id="t-appTitle">A Taste of Home — Finance</div>
+      <div class="app-subtitle" id="t-appSub">Chi phí · Doanh thu · Lợi nhuận &nbsp;/&nbsp; Costs · Revenue · Profit</div>
+    </div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('vi')" id="btn-vi">VI</button>
+      <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+    </div>
+  </div>
+
+  <div class="metrics" id="metrics-bar">
+    <div class="metric"><div class="metric-label" id="m-rev-lbl">Doanh thu</div><div class="metric-value positive" id="m-rev">₫0</div><div class="metric-sub" id="m-rev-sub">Tổng thu</div></div>
+    <div class="metric"><div class="metric-label" id="m-cost-lbl">Chi phí</div><div class="metric-value" id="m-cost">₫0</div><div class="metric-sub" id="m-cost-sub">Tổng chi</div></div>
+    <div class="metric"><div class="metric-label" id="m-profit-lbl">Lợi nhuận</div><div class="metric-value" id="m-profit">₫0</div><div class="metric-sub" id="m-profit-sub">Ròng</div></div>
+    <div class="metric"><div class="metric-label" id="m-orders-lbl">Đơn hàng</div><div class="metric-value" id="m-orders">0</div><div class="metric-sub" id="m-orders-sub">Tổng đơn</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('dashboard')" id="tab-dashboard">📊 <span id="t-tab1">Tổng quan</span></button>
+    <button class="tab" onclick="switchTab('receipt')" id="tab-receipt">🧾 <span id="t-tab2">Quét hoá đơn</span></button>
+    <button class="tab" onclick="switchTab('order')" id="tab-order">🛒 <span id="t-tab3">Nhập đơn</span></button>
+    <button class="tab" onclick="switchTab('records')" id="tab-records">📋 <span id="t-tab4">Sổ sách</span></button>
+  </div>
+
+  <div class="panel active" id="panel-dashboard">
+    <div class="card">
+      <div class="card-title" id="t-chartTitle">Doanh thu & Chi phí theo thời gian</div>
+      <div class="chart-wrap"><canvas id="overviewChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="t-recentTitle">Giao dịch gần đây</div>
+      <div id="recent-list"><div class="empty-state" id="t-noRecords">Chưa có giao dịch nào. Hãy thêm chi phí hoặc đơn hàng.</div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-receipt">
+    <div class="card">
+      <div class="card-title" id="t-receiptTitle">Quét hoá đơn bằng AI</div>
+      <p class="section-sub" id="t-receiptSub">Chụp ảnh hoá đơn — AI sẽ tự động nhận diện các khoản chi phí.</p>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" accept="image/*" capture="environment" id="receiptInput" onchange="handleReceiptUpload(event)">
+        <div style="font-size: 24px; margin-bottom: 8px; color: var(--color-text-secondary);">&#x1F4F7;</div>
+        <div class="upload-text" id="t-uploadText">Nhấn để chụp ảnh hoặc chọn từ thư viện</div>
+        <div class="upload-sub" id="t-uploadSub">Hỗ trợ JPG, PNG. Sử dụng camera điện thoại để quét trực tiếp.</div>
+      </div>
+      <div id="receipt-preview-area"></div>
+      <div id="receipt-status"></div>
+      <div id="receipt-result"></div>
+      <div id="receipt-confirm-area"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-order">
+    <div class="card">
+      <div class="card-title" id="t-orderTitle">Nhập đơn hàng mới</div>
+      <div class="form-row">
+        <div><label id="t-custLabel">Tên khách / Ghi chú</label><input type="text" id="orderCustomer" placeholder="VD: Bàn 5, Khách lấy về..."></div>
+        <div><label id="t-dateLabel">Ngày</label><input type="date" id="orderDate"></div>
+      </div>
+      <div style="margin-bottom: 10px;">
+        <label id="t-itemsLabel">Các món</label>
+        <div style="display: grid; grid-template-columns: 2fr 80px 100px 28px; gap: 6px; margin-bottom: 4px;">
+          <span style="font-size: 11px; color: var(--color-text-secondary);" id="t-colItem">Món ăn</span>
+          <span style="font-size: 11px; color: var(--color-text-secondary);" id="t-colQty">Số lượng</span>
+          <span style="font-size: 11px; color: var(--color-text-secondary);" id="t-colPrice">Đơn giá (₫)</span>
+          <span></span>
+        </div>
+        <div id="orderItemsList">
+          <div class="order-item-entry" id="item-row-0">
+            <input type="text" placeholder="Tên món..." id="item-name-0">
+            <input type="number" min="1" value="1" id="item-qty-0" oninput="recalcOrder()">
+            <input type="number" min="0" placeholder="0" id="item-price-0" oninput="recalcOrder()">
+            <button class="remove-btn" onclick="removeItemRow(0)" title="Xoá">&#x2715;</button>
+          </div>
+        </div>
+        <button class="add-item-btn" onclick="addItemRow()" id="t-addItem">+ Thêm món</button>
+      </div>
+      <div class="total-bar">
+        <span id="t-total">Tổng cộng</span>
+        <span id="orderTotal" style="font-size: 16px;">₫0</span>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:12px; justify-content:flex-end;">
+        <button class="btn btn-secondary" onclick="clearOrderForm()" id="t-clearBtn">Xoá form</button>
+        <button class="btn btn-primary" onclick="saveOrder()" id="t-saveOrder">Lưu đơn hàng</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-records">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0;" id="t-recordsTitle">Tất cả giao dịch</div>
+        <select id="recordFilter" onchange="renderRecords()" style="width:auto; font-size:12px;">
+          <option value="all" id="t-filterAll">Tất cả</option>
+          <option value="revenue" id="t-filterRev">Doanh thu</option>
+          <option value="cost" id="t-filterCost">Chi phí</option>
+        </select>
+      </div>
+      <div id="records-table-wrap">
+        <div class="empty-state" id="t-noRec2">Chưa có dữ liệu.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let lang = 'vi';
+let transactions = JSON.parse(localStorage.getItem('atoh_transactions') || '[]');
+let itemRowCount = 1;
+let overviewChart = null;
+let currentReceiptItems = [];
+
+const T = {
+  vi: {
+    appTitle:'Lovely Oven — Tài chính', appSub:'Chi phí · Doanh thu · Lợi nhuận / Costs · Revenue · Profit',
+    tab1:'Tổng quan', tab2:'Quét hoá đơn', tab3:'Nhập đơn', tab4:'Sổ sách',
+    mRevLbl:'Doanh thu', mRevSub:'Tổng thu', mCostLbl:'Chi phí', mCostSub:'Tổng chi',
+    mProfitLbl:'Lợi nhuận', mProfitSub:'Ròng', mOrdersLbl:'Đơn hàng', mOrdersSub:'Tổng đơn',
+    chartTitle:'Doanh thu & Chi phí theo thời gian', recentTitle:'Giao dịch gần đây',
+    noRecords:'Chưa có giao dịch nào. Hãy thêm chi phí hoặc đơn hàng.',
+    receiptTitle:'Quét hoá đơn bằng AI', receiptSub:'Chụp ảnh hoá đơn — AI sẽ tự động nhận diện các khoản chi phí.',
+    uploadText:'Nhấn để chụp ảnh hoặc chọn từ thư viện', uploadSub:'Hỗ trợ JPG, PNG. Sử dụng camera điện thoại.',
+    orderTitle:'Nhập đơn hàng mới', custLabel:'Tên khách / Ghi chú', dateLabel:'Ngày',
+    itemsLabel:'Các món', colItem:'Món ăn', colQty:'Số lượng', colPrice:'Đơn giá (₫)',
+    addItem:'+ Thêm món', total:'Tổng cộng', clearBtn:'Xoá form', saveOrder:'Lưu đơn hàng',
+    recordsTitle:'Tất cả giao dịch', filterAll:'Tất cả', filterRev:'Doanh thu', filterCost:'Chi phí',
+    noRec2:'Chưa có dữ liệu.', confirmTitle:'Xác nhận chi phí từ hoá đơn', confirmSub:'Kiểm tra và chỉnh sửa nếu cần trước khi lưu.',
+    saveReceipt:'Lưu chi phí', cancelReceipt:'Huỷ', scanning:'Đang phân tích...', done:'Hoàn tất', errScan:'Lỗi quét',
+    saved:'Đã lưu!', revenue:'Doanh thu', cost:'Chi phí', profit:'Lợi nhuận',
+    thDate:'Ngày', thDesc:'Mô tả', thType:'Loại', thAmt:'Số tiền', thProfit:'Lợi nhuận', thDel:'Xoá',
+    deleteConf:'Xoá giao dịch này?', aiTitle:'AI đã nhận diện được:', noItems:'Không tìm thấy mục nào.',
+    catIngredients:'Nguyên liệu', catUtilities:'Tiện ích', catPackaging:'Bao bì', catOther:'Khác',
+  },
+  en: {
+    appTitle:'Lovely Oven — Finance', appSub:'Chi phí · Doanh thu · Lợi nhuận / Costs · Revenue · Profit',
+    tab1:'Dashboard', tab2:'Scan Receipt', tab3:'New Order', tab4:'Records',
+    mRevLbl:'Revenue', mRevSub:'Total in', mCostLbl:'Costs', mCostSub:'Total out',
+    mProfitLbl:'Profit', mProfitSub:'Net', mOrdersLbl:'Orders', mOrdersSub:'Total orders',
+    chartTitle:'Revenue & Costs over time', recentTitle:'Recent transactions',
+    noRecords:'No transactions yet. Add a cost or order to get started.',
+    receiptTitle:'Scan receipt with AI', receiptSub:'Take a photo of a receipt — AI will identify business costs automatically.',
+    uploadText:'Tap to take a photo or choose from gallery', uploadSub:'Supports JPG, PNG. Use phone camera to scan directly.',
+    orderTitle:'New order entry', custLabel:'Customer / Note', dateLabel:'Date',
+    itemsLabel:'Items', colItem:'Item', colQty:'Qty', colPrice:'Unit price (₫)',
+    addItem:'+ Add item', total:'Total', clearBtn:'Clear form', saveOrder:'Save order',
+    recordsTitle:'All transactions', filterAll:'All', filterRev:'Revenue', filterCost:'Costs',
+    noRec2:'No data yet.', confirmTitle:'Confirm costs from receipt', confirmSub:'Review and edit before saving.',
+    saveReceipt:'Save costs', cancelReceipt:'Cancel', scanning:'Scanning...', done:'Done', errScan:'Scan error',
+    saved:'Saved!', revenue:'Revenue', cost:'Cost', profit:'Profit',
+    thDate:'Date', thDesc:'Description', thType:'Type', thAmt:'Amount', thProfit:'Profit', thDel:'Del',
+    deleteConf:'Delete this transaction?', aiTitle:'AI identified:', noItems:'No items found.',
+    catIngredients:'Ingredients', catUtilities:'Utilities', catPackaging:'Packaging', catOther:'Other',
+  }
+};
+
+function t(key) { return T[lang][key] || key; }
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-vi').className = 'lang-btn' + (l==='vi'?' active':'');
+  document.getElementById('btn-en').className = 'lang-btn' + (l==='en'?' active':'');
+  applyLang();
+}
+
+function applyLang() {
+  const ids = ['appTitle','appSub','tab1','tab2','tab3','tab4','mRevLbl','mRevSub','mCostLbl','mCostSub',
+    'mProfitLbl','mProfitSub','mOrdersLbl','mOrdersSub','chartTitle','recentTitle','noRecords',
+    'receiptTitle','receiptSub','uploadText','uploadSub','orderTitle','custLabel','dateLabel',
+    'itemsLabel','colItem','colQty','colPrice','addItem','total','clearBtn','saveOrder',
+    'recordsTitle','filterAll','filterRev','filterCost','noRec2'];
+  ids.forEach(id => {
+    const el = document.getElementById('t-' + id);
+    if (el) el.textContent = t(id);
+  });
+  renderMetrics(); renderRecent(); renderRecords();
+}
+
+function fmt(n) {
+  return '₫' + Math.round(n).toLocaleString('vi-VN');
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'dashboard') renderChart();
+  if (name === 'records') renderRecords();
+}
+
+function save() {
+  localStorage.setItem('atoh_transactions', JSON.stringify(transactions));
+  renderMetrics(); renderRecent(); renderRecords();
+  if (document.getElementById('panel-dashboard').classList.contains('active')) renderChart();
+}
+
+function getTotals() {
+  let rev = 0, cost = 0, orders = 0;
+  transactions.forEach(tx => {
+    if (tx.type === 'revenue') { rev += tx.amount; orders++; }
+    else { cost += tx.amount; }
+  });
+  return { rev, cost, profit: rev - cost, orders };
+}
+
+function renderMetrics() {
+  const { rev, cost, profit, orders } = getTotals();
+  document.getElementById('m-rev').textContent = fmt(rev);
+  document.getElementById('m-cost').textContent = fmt(cost);
+  const mp = document.getElementById('m-profit');
+  mp.textContent = fmt(profit);
+  mp.className = 'metric-value ' + (profit >= 0 ? 'positive' : 'negative');
+  document.getElementById('m-orders').textContent = orders;
+  ['rev','cost','profit','orders'].forEach(k => {
+    const sl = document.getElementById('m-' + k + '-lbl');
+    const ss = document.getElementById('m-' + k + '-sub');
+    if(sl) sl.textContent = t('m' + k.charAt(0).toUpperCase() + k.slice(1) + 'Lbl');
+    if(ss) ss.textContent = t('m' + k.charAt(0).toUpperCase() + k.slice(1) + 'Sub');
+  });
+}
+
+function renderRecent() {
+  const el = document.getElementById('recent-list');
+  const recent = [...transactions].sort((a,b) => new Date(b.date)-new Date(a.date)).slice(0,8);
+  if (!recent.length) { el.innerHTML = '<div class="empty-state">' + t('noRecords') + '</div>'; return; }
+  el.innerHTML = '<table class="data-table"><thead><tr>' +
+    '<th>' + t('thDate') + '</th><th>' + t('thDesc') + '</th><th>' + t('thType') + '</th><th class="amount-col">' + t('thAmt') + '</th>' +
+    '</tr></thead><tbody>' + recent.map(tx => `
+    <tr>
+      <td>${tx.date}</td>
+      <td>${tx.desc}</td>
+      <td><span class="badge ${tx.type==='revenue'?'badge-revenue':'badge-cost'}">${tx.type==='revenue'?t('revenue'):t('cost')}</span></td>
+      <td class="amount-col">${tx.type==='cost'?'-':''}${fmt(tx.amount)}</td>
+    </tr>`).join('') + '</tbody></table>';
+}
+
+function renderRecords() {
+  const wrap = document.getElementById('records-table-wrap');
+  const filter = document.getElementById('recordFilter').value;
+  let rows = [...transactions].sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (filter !== 'all') rows = rows.filter(tx => tx.type === filter);
+  if (!rows.length) { wrap.innerHTML = '<div class="empty-state">' + t('noRec2') + '</div>'; return; }
+
+  let runningProfit = 0;
+  wrap.innerHTML = '<div style="overflow-x:auto"><table class="data-table"><thead><tr>' +
+    '<th>' + t('thDate') + '</th><th>' + t('thDesc') + '</th><th>' + t('thType') + '</th>' +
+    '<th class="amount-col">' + t('thAmt') + '</th><th class="amount-col">' + t('thProfit') + '</th>' +
+    '<th>' + t('thDel') + '</th></tr></thead><tbody>' +
+    [...transactions].sort((a,b)=>new Date(a.date)-new Date(b.date)).map((tx,i) => {
+      runningProfit += tx.type==='revenue' ? tx.amount : -tx.amount;
+      const inFilter = filter==='all' || tx.type===filter;
+      if (!inFilter) return '';
+      return `<tr>
+        <td>${tx.date}</td><td>${tx.desc}</td>
+        <td><span class="badge ${tx.type==='revenue'?'badge-revenue':'badge-cost'}">${tx.type==='revenue'?t('revenue'):t('cost')}</span></td>
+        <td class="amount-col">${tx.type==='cost'?'-':''}${fmt(tx.amount)}</td>
+        <td class="amount-col ${runningProfit>=0?'profit-pos':'profit-neg'}">${fmt(runningProfit)}</td>
+        <td><button class="btn-danger" onclick="deleteTx(${i})">&times;</button></td>
+      </tr>`;
+    }).join('') + '</tbody></table></div>';
+}
+
+function deleteTx(i) {
+  if (!confirm(t('deleteConf'))) return;
+  transactions.splice(i, 1);
+  save();
+}
+
+function renderChart() {
+  const ctx = document.getElementById('overviewChart');
+  if (!ctx) return;
+  const byDate = {};
+  transactions.forEach(tx => {
+    if (!byDate[tx.date]) byDate[tx.date] = { rev: 0, cost: 0 };
+    if (tx.type === 'revenue') byDate[tx.date].rev += tx.amount;
+    else byDate[tx.date].cost += tx.amount;
+  });
+  const labels = Object.keys(byDate).sort();
+  const revData = labels.map(d => Math.round(byDate[d].rev));
+  const costData = labels.map(d => Math.round(byDate[d].cost));
+  if (overviewChart) { overviewChart.destroy(); }
+  if (!labels.length) {
+    ctx.parentElement.innerHTML = '<div class="empty-state" style="padding:3rem 0">' + t('noRecords') + '</div>';
+    return;
+  }
+  overviewChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: t('revenue'), data: revData, backgroundColor: '#4a9b6f', borderRadius: 4 },
+        { label: t('cost'), data: costData, backgroundColor: '#c0392b', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { callback: v => '₫' + (v/1000).toFixed(0) + 'k', font: { size: 11 } }, grid: { color: 'rgba(128,128,128,0.1)' } },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+function handleReceiptUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    document.getElementById('receipt-preview-area').innerHTML =
+      '<img src="' + dataUrl + '" class="img-preview" id="receiptImg">';
+    document.getElementById('receipt-status').innerHTML =
+      '<div style="margin:8px 0; font-size:13px;"><span class="spinner"></span><span class="status-pill pill-scanning">' + t('scanning') + '</span></div>';
+    document.getElementById('receipt-result').innerHTML = '';
+    document.getElementById('receipt-confirm-area').innerHTML = '';
+    const base64 = dataUrl.split(',')[1];
+    const mimeType = file.type || 'image/jpeg';
+    scanReceiptWithAI(base64, mimeType);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function scanReceiptWithAI(base64, mimeType) {
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mimeType, data: base64 }
+            },
+            {
+              type: 'text',
+              text: `You are a finance assistant for a Vietnamese restaurant called "A Taste of Home". Analyse this receipt image and extract all line items that are business costs (ingredients, packaging, utilities, supplies etc). Return ONLY a JSON array, no other text, no markdown. Each item: {"name": "item name in original language", "amount": number_in_VND_integer, "category": "ingredients|utilities|packaging|other"}. If prices are in another currency convert to VND approximately. If the image is not a receipt or you cannot read it, return [].`
+            }
+          ]
+        }]
+      })
+    });
+    const data = await response.json();
+    const raw = data.content?.[0]?.text || '[]';
+    let items = [];
+    try { items = JSON.parse(raw.replace(/```json|```/g,'')); } catch(e) { items = []; }
+    currentReceiptItems = items;
+    showReceiptResult(items);
+  } catch(err) {
+    document.getElementById('receipt-status').innerHTML =
+      '<span class="status-pill pill-error">' + t('errScan') + ': ' + err.message + '</span>';
+  }
+}
+
+function showReceiptResult(items) {
+  document.getElementById('receipt-status').innerHTML =
+    '<span class="status-pill pill-done">' + t('done') + '</span>';
+  const res = document.getElementById('receipt-result');
+  if (!items.length) {
+    res.innerHTML = '<div class="ai-result"><div class="ai-result-title">' + t('aiTitle') + '</div><div style="font-size:13px;color:var(--color-text-secondary)">' + t('noItems') + '</div></div>';
+    return;
+  }
+  const total = items.reduce((s,i) => s+i.amount, 0);
+  const catLabels = { ingredients: t('catIngredients'), utilities: t('catUtilities'), packaging: t('catPackaging'), other: t('catOther') };
+  res.innerHTML = '<div class="ai-result"><div class="ai-result-title">' + t('aiTitle') + '</div>' +
+    items.map((item,i) => `
+    <div class="ai-item-row">
+      <span class="ai-item-name"><input type="text" value="${item.name}" id="ai-name-${i}" style="font-size:13px; width:100%; border:none; background:transparent; padding:0; color:var(--color-text-primary);"></span>
+      <span class="ai-item-cat">${catLabels[item.category]||item.category}</span>
+      <span class="ai-item-amt"><input type="number" value="${item.amount}" id="ai-amt-${i}" style="font-size:13px; width:100px; text-align:right;" oninput="updateAITotal()"></span>
+    </div>`).join('') +
+    '<div class="total-bar" style="margin-top:10px"><span>' + t('total') + '</span><span id="ai-total">' + fmt(total) + '</span></div>' +
+    '</div>';
+
+  const today = new Date().toISOString().slice(0,10);
+  document.getElementById('receipt-confirm-area').innerHTML = `
+    <div style="margin-top:12px;"><label>${t('dateLabel')}</label><input type="date" id="receiptDate" value="${today}" style="width:200px"></div>
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="cancelReceipt()">${t('cancelReceipt')}</button>
+      <button class="btn btn-primary" onclick="saveReceiptCosts()">${t('saveReceipt')}</button>
+    </div>`;
+}
+
+function updateAITotal() {
+  let total = 0;
+  currentReceiptItems.forEach((_, i) => {
+    const v = parseFloat(document.getElementById('ai-amt-'+i)?.value)||0;
+    total += v;
+  });
+  const el = document.getElementById('ai-total');
+  if (el) el.textContent = fmt(total);
+}
+
+function saveReceiptCosts() {
+  const date = document.getElementById('receiptDate')?.value || new Date().toISOString().slice(0,10);
+  currentReceiptItems.forEach((item, i) => {
+    const name = document.getElementById('ai-name-'+i)?.value || item.name;
+    const amount = parseFloat(document.getElementById('ai-amt-'+i)?.value) || item.amount;
+    if (amount > 0) {
+      transactions.push({ id: Date.now()+i, type: 'cost', date, desc: name, amount, category: item.category });
+    }
+  });
+  save();
+  document.getElementById('receipt-preview-area').innerHTML = '';
+  document.getElementById('receipt-status').innerHTML = '<span class="status-pill pill-done">' + t('saved') + '</span>';
+  document.getElementById('receipt-result').innerHTML = '';
+  document.getElementById('receipt-confirm-area').innerHTML = '';
+  document.getElementById('receiptInput').value = '';
+  currentReceiptItems = [];
+}
+
+function cancelReceipt() {
+  document.getElementById('receipt-preview-area').innerHTML = '';
+  document.getElementById('receipt-status').innerHTML = '';
+  document.getElementById('receipt-result').innerHTML = '';
+  document.getElementById('receipt-confirm-area').innerHTML = '';
+  document.getElementById('receiptInput').value = '';
+  currentReceiptItems = [];
+}
+
+let orderRows = [0];
+function addItemRow() {
+  const id = itemRowCount++;
+  orderRows.push(id);
+  const list = document.getElementById('orderItemsList');
+  const div = document.createElement('div');
+  div.className = 'order-item-entry';
+  div.id = 'item-row-' + id;
+  div.innerHTML = `
+    <input type="text" placeholder="${lang==='vi'?'Tên món...':'Item name...'}" id="item-name-${id}">
+    <input type="number" min="1" value="1" id="item-qty-${id}" oninput="recalcOrder()">
+    <input type="number" min="0" placeholder="0" id="item-price-${id}" oninput="recalcOrder()">
+    <button class="remove-btn" onclick="removeItemRow(${id})" title="Remove">&#x2715;</button>`;
+  list.appendChild(div);
+}
+
+function removeItemRow(id) {
+  const el = document.getElementById('item-row-' + id);
+  if (el && orderRows.length > 1) { el.remove(); orderRows = orderRows.filter(r => r !== id); recalcOrder(); }
+}
+
+function recalcOrder() {
+  let total = 0;
+  orderRows.forEach(id => {
+    const qty = parseFloat(document.getElementById('item-qty-'+id)?.value)||0;
+    const price = parseFloat(document.getElementById('item-price-'+id)?.value)||0;
+    total += qty * price;
+  });
+  document.getElementById('orderTotal').textContent = fmt(total);
+}
+
+function clearOrderForm() {
+  document.getElementById('orderCustomer').value = '';
+  document.getElementById('orderDate').value = new Date().toISOString().slice(0,10);
+  const list = document.getElementById('orderItemsList');
+  list.innerHTML = `<div class="order-item-entry" id="item-row-0">
+    <input type="text" placeholder="${lang==='vi'?'Tên món...':'Item name...'}" id="item-name-0">
+    <input type="number" min="1" value="1" id="item-qty-0" oninput="recalcOrder()">
+    <input type="number" min="0" placeholder="0" id="item-price-0" oninput="recalcOrder()">
+    <button class="remove-btn" onclick="removeItemRow(0)" title="Remove">&#x2715;</button></div>`;
+  orderRows = [0]; itemRowCount = 1;
+  recalcOrder();
+}
+
+function saveOrder() {
+  const customer = document.getElementById('orderCustomer').value.trim();
+  const date = document.getElementById('orderDate').value || new Date().toISOString().slice(0,10);
+  let total = 0;
+  const items = [];
+  orderRows.forEach(id => {
+    const name = document.getElementById('item-name-'+id)?.value?.trim();
+    const qty = parseFloat(document.getElementById('item-qty-'+id)?.value)||0;
+    const price = parseFloat(document.getElementById('item-price-'+id)?.value)||0;
+    if (name && price > 0) { items.push({ name, qty, price }); total += qty * price; }
+  });
+  if (!items.length || total <= 0) { alert(lang==='vi'?'Vui lòng nhập ít nhất một món và giá.':'Please enter at least one item with a price.'); return; }
+  const desc = (customer ? customer + ': ' : '') + items.map(i => i.name + ' x' + i.qty).join(', ');
+  transactions.push({ id: Date.now(), type: 'revenue', date, desc, amount: total, items });
+  save();
+  clearOrderForm();
+  alert(t('saved'));
+}
+
+document.getElementById('orderDate').value = new Date().toISOString().slice(0,10);
+renderMetrics();
+renderRecent();
+</script>
