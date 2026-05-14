@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lovely Oven — Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ── Variables ── */
+:root {
+  --olive:        #B5A882;
+  --olive-light:  #CFC8A8;
+  --olive-dark:   #8A7D5A;
+  --olive-darker: #5C5035;
+  --parchment:    #EDE8D8;
+  --ink:          #2C2210;
+  --accent:       #C4A35A;
+  --accent-pale:  rgba(196,163,90,0.15);
+  --white:        #FFFFFF;
+  --success:      #4a9b6f;
+  --danger:       #c0392b;
+  --warning:      #e67e22;
+  --border:       rgba(92,80,53,0.18);
+}
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body { font-family: 'Jost', sans-serif; background: var(--olive); color: var(--ink); min-height: 100vh; }
+
+/* ── Layout ── */
+.shell { display: flex; min-height: 100vh; }
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 220px; min-width: 220px; background: var(--olive-darker);
+  display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+}
+.sidebar-logo {
+  padding: 1.5rem 1.25rem 1rem;
+  border-bottom: 1px solid rgba(196,163,90,0.2);
+}
+.sidebar-logo .brand {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 600;
+  font-style: italic; color: var(--accent); display: block; line-height: 1.2;
+}
+.sidebar-logo .sub { font-size: 0.68rem; letter-spacing: 0.15em; color: rgba(237,232,216,0.5); text-transform: uppercase; margin-top: 2px; }
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 0.7rem 1.25rem;
+  cursor: pointer; color: rgba(237,232,216,0.65); font-size: 0.82rem; font-weight: 500;
+  letter-spacing: 0.04em; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left;
+}
+.nav-item:hover { background: rgba(196,163,90,0.12); color: var(--parchment); }
+.nav-item.active { background: rgba(196,163,90,0.18); color: var(--accent); border-left: 2px solid var(--accent); }
+.nav-icon { font-size: 1rem; width: 18px; text-align: center; flex-shrink: 0; }
+
+.sidebar-footer { margin-top: auto; padding: 1rem 1.25rem; border-top: 1px solid rgba(196,163,90,0.15); }
+.server-status { font-size: 0.72rem; color: rgba(237,232,216,0.5); display: flex; align-items: center; gap: 6px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.status-dot.offline { background: var(--danger); }
+
+/* ── Main content ── */
+.main { margin-left: 220px; flex: 1; padding: 1.5rem 2rem; }
+
+/* ── Page header ── */
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
+.page-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 600; color: var(--ink); line-height: 1; }
+.page-sub { font-size: 0.78rem; color: var(--olive-dark); letter-spacing: 0.06em; margin-top: 3px; }
+.lang-toggle { display: flex; gap: 4px; }
+.lang-btn { padding: 4px 10px; font-size: 0.72rem; font-family: 'Jost', sans-serif; font-weight: 500; letter-spacing: 0.08em; border: 1px solid rgba(92,80,53,0.3); background: transparent; color: var(--olive-dark); cursor: pointer; border-radius: 4px; transition: all 0.15s; }
+.lang-btn.active { background: var(--olive-darker); color: var(--accent); border-color: var(--olive-darker); }
+
+/* ── Panels ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Metric cards ── */
+.metrics { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 1.5rem; }
+.metric { background: var(--parchment); border-radius: 10px; padding: 1rem 1.1rem; border: 1px solid var(--border); }
+.metric-label { font-size: 0.72rem; color: var(--olive-dark); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.metric-value { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; font-weight: 600; color: var(--ink); line-height: 1; }
+.metric-value.green { color: var(--success); }
+.metric-value.red   { color: var(--danger); }
+.metric-sub { font-size: 0.7rem; color: var(--olive-dark); margin-top: 4px; }
+
+/* ── Cards ── */
+.card { background: var(--parchment); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.card-title { font-size: 0.85rem; font-weight: 600; color: var(--ink); letter-spacing: 0.03em; }
+
+/* ── Chart ── */
+.chart-wrap { position: relative; height: 220px; }
+
+/* ── Table ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+th { text-align: left; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--olive-dark); padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+td { padding: 9px 10px; border-bottom: 1px solid rgba(92,80,53,0.1); color: var(--ink); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(196,163,90,0.06); }
+.amt { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.profit-pos { color: var(--success); font-weight: 500; }
+.profit-neg { color: var(--danger); font-weight: 500; }
+
+/* ── Badges ── */
+.badge { display: inline-block; font-size: 0.68rem; font-weight: 500; padding: 2px 8px; border-radius: 20px; }
+.badge-rev  { background: rgba(74,155,111,0.15); color: #2d7a50; }
+.badge-cost { background: rgba(192,57,43,0.12); color: #9b2d21; }
+.badge-ok     { background: rgba(74,155,111,0.12); color: #2d7a50; }
+.badge-low    { background: rgba(192,57,43,0.12); color: #9b2d21; }
+.badge-reorder{ background: rgba(230,126,34,0.15); color: #b35a0a; }
+
+/* ── Forms ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.full   { grid-template-columns: 1fr; }
+.form-group label { display: block; font-size: 0.72rem; font-weight: 500; color: var(--olive-dark); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
+input[type=text], input[type=number], input[type=date], select, textarea {
+  width: 100%; padding: 7px 10px; font-family: 'Jost', sans-serif; font-size: 0.82rem;
+  background: var(--white); border: 1px solid rgba(92,80,53,0.25); border-radius: 6px;
+  color: var(--ink); outline: none; transition: border-color 0.15s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+textarea { min-height: 64px; resize: vertical; }
+
+/* ── Order items ── */
+.items-header { display: grid; grid-template-columns: 2fr 1fr 110px 110px 80px 28px; gap: 6px; padding: 0 0 4px; }
+.items-header span { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--olive-dark); }
+.item-row { display: grid; grid-template-columns: 2fr 1fr 110px 110px 80px 28px; gap: 6px; margin-bottom: 6px; align-items: center; }
+.item-row select { font-size: 0.8rem; }
+.remove-btn { width: 28px; height: 34px; border: 1px solid rgba(92,80,53,0.25); background: none; color: var(--olive-dark); cursor: pointer; border-radius: 5px; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.remove-btn:hover { background: rgba(192,57,43,0.1); color: var(--danger); border-color: var(--danger); }
+.add-line { font-size: 0.78rem; color: var(--accent); background: none; border: none; cursor: pointer; padding: 4px 0; font-family: 'Jost', sans-serif; font-weight: 500; }
+.add-line:hover { text-decoration: underline; }
+.order-total-bar { display: flex; justify-content: space-between; align-items: center; background: var(--olive-light); border-radius: 6px; padding: 10px 14px; margin-top: 10px; font-weight: 600; }
+.order-total-val { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; }
+
+/* ── Buttons ── */
+.btn { padding: 7px 16px; font-family: 'Jost', sans-serif; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em; border-radius: 6px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+.btn-primary   { background: var(--olive-darker); color: var(--parchment); border-color: var(--olive-darker); }
+.btn-primary:hover { background: var(--ink); border-color: var(--ink); }
+.btn-accent    { background: var(--accent); color: var(--ink); border-color: var(--accent); font-weight: 600; }
+.btn-accent:hover { opacity: 0.88; }
+.btn-ghost     { background: transparent; color: var(--ink); border-color: rgba(92,80,53,0.3); }
+.btn-ghost:hover { background: rgba(92,80,53,0.08); }
+.btn-danger-sm { background: transparent; color: var(--danger); border: 1px solid rgba(192,57,43,0.3); font-size: 0.72rem; padding: 3px 8px; border-radius: 4px; cursor: pointer; transition: all 0.15s; }
+.btn-danger-sm:hover { background: rgba(192,57,43,0.1); }
+.btn-row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+/* ── Receipt upload ── */
+.upload-zone {
+  border: 2px dashed rgba(92,80,53,0.3); border-radius: 10px; padding: 2rem; text-align: center;
+  cursor: pointer; transition: all 0.15s; position: relative; background: rgba(196,163,90,0.04);
+}
+.upload-zone:hover { border-color: var(--accent); background: rgba(196,163,90,0.08); }
+.upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon { font-size: 2rem; margin-bottom: 8px; }
+.upload-text { font-size: 0.85rem; font-weight: 500; color: var(--ink); }
+.upload-sub  { font-size: 0.72rem; color: var(--olive-dark); margin-top: 4px; }
+.img-preview { max-width: 100%; max-height: 200px; border-radius: 8px; margin: 10px 0; object-fit: contain; display: block; }
+
+/* ── AI result ── */
+.ai-box { background: rgba(196,163,90,0.1); border: 1px solid rgba(196,163,90,0.35); border-radius: 8px; padding: 1rem; margin: 12px 0; }
+.ai-box-title { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.ai-item { display: grid; grid-template-columns: 1fr 120px 110px; gap: 8px; align-items: center; margin-bottom: 6px; }
+.ai-cat { font-size: 0.68rem; background: rgba(92,80,53,0.1); padding: 2px 8px; border-radius: 20px; color: var(--olive-dark); white-space: nowrap; }
+
+/* ── Status pills ── */
+.pill { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 500; padding: 3px 10px; border-radius: 20px; }
+.pill-scan { background: rgba(230,126,34,0.15); color: #a05a05; }
+.pill-done { background: rgba(74,155,111,0.15); color: #2a6640; }
+.pill-err  { background: rgba(192,57,43,0.12); color: var(--danger); }
+.spinner { width: 10px; height: 10px; border: 2px solid rgba(160,90,5,0.3); border-top-color: #a05a05; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ── */
+#toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--olive-darker); color: var(--parchment); padding: 10px 18px; border-radius: 8px; font-size: 0.82rem; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all 0.3s; pointer-events: none; border-left: 3px solid var(--accent); }
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* ── Filter row ── */
+.filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.filter-row select, .filter-row input { width: auto; min-width: 140px; }
+
+/* ── Empty state ── */
+.empty { text-align: center; padding: 2.5rem; color: var(--olive-dark); font-size: 0.85rem; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sidebar { width: 60px; min-width: 60px; }
+  .sidebar-logo .brand, .sidebar-logo .sub, .nav-item span, .sidebar-footer { display: none; }
+  .main { margin-left: 60px; padding: 1rem; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .form-grid, .form-grid.three { grid-template-columns: 1fr; }
+  .items-header, .item-row { grid-template-columns: 1fr 60px 90px 90px 60px 28px; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="brand">Lovely Oven</span>
+      <span class="sub">Finance System</span>
+    </div>
+    <nav style="padding-top: 0.5rem;">
+      <button class="nav-item active" onclick="showPanel('dashboard')" id="nav-dashboard">
+        <span class="nav-icon">📊</span><span id="t-nav1">Dashboard</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('orders')" id="nav-orders">
+        <span class="nav-icon">🛒</span><span id="t-nav2">Orders</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('new-order')" id="nav-new-order">
+        <span class="nav-icon">➕</span><span id="t-nav3">New Order</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('costs')" id="nav-costs">
+        <span class="nav-icon">🧾</span><span id="t-nav4">Costs</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('receipt')" id="nav-receipt">
+        <span class="nav-icon">📷</span><span id="t-nav5">Scan Receipt</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('products')" id="nav-products">
+        <span class="nav-icon">🍜</span><span id="t-nav6">Products</span>
+      </button>
+      <button class="nav-item" onclick="showPanel('inventory')" id="nav-inventory">
+        <span class="nav-icon">📦</span><span id="t-nav7">Inventory</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="server-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Connecting...</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title" id="t-pageTitle">Dashboard</div>
+        <div class="page-sub" id="t-pageSub">Tổng quan tài chính · Finance Overview</div>
+      </div>
+      <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('vi')" id="btn-vi">VI</button>
+        <button class="lang-btn" onclick="setLang('en')" id="btn-en">EN</button>
+      </div>
+    </div>
+
+    <!-- ── DASHBOARD ── -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="metrics" id="kpi-bar">
+        <div class="metric"><div class="metric-label" id="kl-rev">Doanh thu</div><div class="metric-value green" id="kv-rev">₫—</div><div class="metric-sub" id="ks-rev">Tổng thu</div></div>
+        <div class="metric"><div class="metric-label" id="kl-cost">Chi phí</div><div class="metric-value" id="kv-cost">₫—</div><div class="metric-sub" id="ks-cost">Tổng chi</div></div>
+        <div class="metric"><div class="metric-label" id="kl-profit">Lợi nhuận</div><div class="metric-value" id="kv-profit">₫—</div><div class="metric-sub" id="ks-profit">Ròng</div></div>
+        <div class="metric"><div class="metric-label" id="kl-orders">Đơn hàng</div><div class="metric-value" id="kv-orders">—</div><div class="metric-sub" id="ks-orders">Tổng đơn</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="t-chartLbl">Doanh thu & Chi phí theo tháng</div>
+          <div id="chart-legend" style="display:flex;gap:12px;font-size:0.72rem;color:var(--olive-dark);">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#4a9b6f;display:inline-block;"></span><span id="t-legendRev">Doanh thu</span></span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:#c0392b;display:inline-block;"></span><span id="t-legendCost">Chi phí</span></span>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="monthlyChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title" id="t-recentLbl">Giao dịch gần đây</div>
+        <div class="tbl-wrap" id="recent-table"></div>
+      </div>
+    </div>
+
+    <!-- ── ORDERS LIST ── -->
+    <div class="panel" id="panel-orders">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="t-ordersListLbl">Tất cả đơn hàng</div>
+          <div class="filter-row">
+            <input type="text" id="orderSearch" placeholder="Tìm kiếm..." oninput="filterOrders()" style="min-width:180px;">
+          </div>
+        </div>
+        <div class="tbl-wrap" id="orders-table"></div>
+      </div>
+    </div>
+
+    <!-- ── NEW ORDER ── -->
+    <div class="panel" id="panel-new-order">
+      <div class="card">
+        <div class="card-title" id="t-newOrderLbl">Nhập đơn hàng mới</div>
+        <div style="height:12px"></div>
+        <div class="form-grid">
+          <div class="form-group"><label id="t-custLbl">Khách / Ghi chú</label><input type="text" id="o-customer" placeholder="Bàn 5, khách mang về..."></div>
+          <div class="form-group"><label id="t-dateLbl">Ngày</label><input type="date" id="o-date"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label id="t-typeLbl">Loại đơn</label>
+            <select id="o-type">
+              <option>Dine-in</option><option>Takeaway</option><option>Delivery</option><option>Online</option>
+            </select>
+          </div>
+          <div class="form-group"><label id="t-payLbl">Thanh toán</label>
+            <select id="o-payment">
+              <option>Cash</option><option>Card</option><option>Bank Transfer</option><option>Momo</option><option>ZaloPay</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:10px;">
+          <label id="t-staffLbl">Nhân viên</label>
+          <input type="text" id="o-staff" placeholder="Hoa, Minh...">
+        </div>
+        <div style="margin-top:14px;margin-bottom:8px;">
+          <div class="items-header">
+            <span id="t-colProd">Sản phẩm</span>
+            <span id="t-colQty">SL</span>
+            <span id="t-colWeight">KL (g)</span>
+            <span id="t-colPrice">Đơn giá (₫)</span>
+            <span id="t-colDisc">Giảm (₫)</span>
+            <span></span>
+          </div>
+          <div id="order-items-list"></div>
+          <button class="add-line" onclick="addOrderItem()" id="t-addLine">+ Thêm món</button>
+        </div>
+        <div class="order-total-bar">
+          <span id="t-totalLbl" style="font-weight:600;">Tổng cộng</span>
+          <span class="order-total-val" id="order-total-display">₫0</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="resetOrderForm()" id="t-clearOrd">Xoá</button>
+          <button class="btn btn-accent" onclick="submitOrder()" id="t-saveOrd">💾 Lưu đơn → Excel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── COSTS LIST ── -->
+    <div class="panel" id="panel-costs">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="t-costsLbl">Chi phí</div>
+          <div class="filter-row">
+            <select id="costCatFilter" onchange="loadCosts()" style="min-width:160px;">
+              <option value="" id="t-catAll">Tất cả danh mục</option>
+              <option>Ingredients</option><option>Packaging</option><option>Utilities</option>
+              <option>Equipment</option><option>Staff</option><option>Rent</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="tbl-wrap" id="costs-table"></div>
+      </div>
+    </div>
+
+    <!-- ── RECEIPT SCANNER ── -->
+    <div class="panel" id="panel-receipt">
+      <div class="card">
+        <div class="card-title" id="t-receiptLbl">Quét hoá đơn bằng AI</div>
+        <div style="height:8px"></div>
+        <p style="font-size:0.82rem;color:var(--olive-dark);margin-bottom:14px;" id="t-receiptSub">Chụp ảnh hoá đơn — AI tự động nhận diện chi phí và lưu vào Excel.</p>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" accept="image/*" capture="environment" id="receiptFile" onchange="handleReceipt(event)">
+          <div class="upload-icon">📷</div>
+          <div class="upload-text" id="t-uploadTxt">Nhấn để chụp ảnh hoặc chọn từ thư viện</div>
+          <div class="upload-sub" id="t-uploadSub">JPG, PNG · Camera điện thoại</div>
+        </div>
+        <div id="receipt-img-area"></div>
+        <div id="receipt-status-area" style="margin:10px 0;"></div>
+        <div id="receipt-result-area"></div>
+        <div id="receipt-action-area"></div>
+      </div>
+    </div>
+
+    <!-- ── PRODUCTS ── -->
+    <div class="panel" id="panel-products">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="t-productsLbl">Sản phẩm / Menu</div>
+          <button class="btn btn-ghost" onclick="showPanel('new-product')" id="t-addProdBtn">+ Thêm sản phẩm</button>
+        </div>
+        <div class="tbl-wrap" id="products-table"></div>
+      </div>
+      <!-- Add product form (hidden by default) -->
+      <div class="card" id="new-product-card" style="display:none;">
+        <div class="card-title" id="t-newProdLbl">Thêm sản phẩm mới</div>
+        <div style="height:10px"></div>
+        <div class="form-grid">
+          <div class="form-group"><label>Tên (EN)</label><input type="text" id="p-name-en"></div>
+          <div class="form-group"><label>Tên (VI)</label><input type="text" id="p-name-vi"></div>
+        </div>
+        <div class="form-grid three">
+          <div class="form-group"><label>Danh mục</label>
+            <select id="p-cat"><option>Mains</option><option>Starters</option><option>Desserts</option><option>Drinks</option><option>Sides</option></select>
+          </div>
+          <div class="form-group"><label>Đơn vị</label>
+            <select id="p-unit"><option>Portion</option><option>Bowl</option><option>Glass</option><option>Plate</option><option>piece</option></select>
+          </div>
+          <div class="form-group"><label>Trọng lượng (g)</label><input type="number" id="p-weight"></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group"><label>Giá vốn (₫)</label><input type="number" id="p-cost"></div>
+          <div class="form-group"><label>Giá bán (₫)</label><input type="number" id="p-sell"></div>
+        </div>
+        <div class="form-group form-grid full">
+          <div><label>Mô tả</label><input type="text" id="p-desc"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="document.getElementById('new-product-card').style.display='none'">Huỷ</button>
+          <button class="btn btn-accent" onclick="submitProduct()" id="t-saveProd">💾 Lưu → Excel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INVENTORY ── -->
+    <div class="panel" id="panel-inventory">
+      <div class="card">
+        <div class="card-title" id="t-invLbl">Tồn kho / Inventory</div>
+        <div style="height:10px"></div>
+        <div class="tbl-wrap" id="inventory-table"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const API = 'http://localhost:5050/api';
+let lang = 'vi';
+let products = [];
+let orderItemCount = 0;
+let orderItemIds = [];
+let allOrders = [];
+let allCosts  = [];
+let monthlyChart = null;
+let receiptAiItems = [];
+
+// ── i18n ─────────────────────────────────────────────────────────────────────
+const T = {
+  vi: {
+    nav1:'Dashboard', nav2:'Đơn hàng', nav3:'Đơn mới', nav4:'Chi phí', nav5:'Quét hoá đơn', nav6:'Sản phẩm', nav7:'Tồn kho',
+    kl_rev:'Doanh thu', ks_rev:'Tổng thu', kl_cost:'Chi phí', ks_cost:'Tổng chi',
+    kl_profit:'Lợi nhuận', ks_profit:'Ròng', kl_orders:'Đơn hàng', ks_orders:'Tổng đơn',
+    chartLbl:'Doanh thu & Chi phí theo tháng', legendRev:'Doanh thu', legendCost:'Chi phí',
+    recentLbl:'Giao dịch gần đây', ordersListLbl:'Tất cả đơn hàng',
+    newOrderLbl:'Nhập đơn hàng mới', custLbl:'Khách / Ghi chú', dateLbl:'Ngày',
+    typeLbl:'Loại đơn', payLbl:'Thanh toán', staffLbl:'Nhân viên',
+    colProd:'Sản phẩm', colQty:'SL', colWeight:'KL (g)', colPrice:'Đơn giá (₫)', colDisc:'Giảm (₫)',
+    addLine:'+ Thêm món', totalLbl:'Tổng cộng', clearOrd:'Xoá', saveOrd:'💾 Lưu đơn → Excel',
+    costsLbl:'Chi phí', catAll:'Tất cả danh mục',
+    receiptLbl:'Quét hoá đơn bằng AI',
+    receiptSub:'Chụp ảnh hoá đơn — AI tự động nhận diện chi phí và lưu vào Excel.',
+    uploadTxt:'Nhấn để chụp ảnh hoặc chọn từ thư viện', uploadSub:'JPG, PNG · Camera điện thoại',
+    productsLbl:'Sản phẩm / Menu', addProdBtn:'+ Thêm sản phẩm', newProdLbl:'Thêm sản phẩm mới', saveProd:'💾 Lưu → Excel',
+    invLbl:'Tồn kho / Inventory',
+    scanning:'Đang phân tích...', done:'Hoàn tất', errScan:'Lỗi quét',
+    aiFound:'AI nhận diện được:', noItems:'Không tìm thấy mục nào.',
+    confirmCosts:'Xác nhận & Lưu vào Excel', cancelScan:'Huỷ',
+    saved:'Đã lưu vào Excel!', orderSaved:'Đơn hàng đã lưu vào Excel!', prodSaved:'Sản phẩm đã lưu vào Excel!',
+    delConf:'Xoá mục này?', revenue:'Doanh thu', cost:'Chi phí',
+    pageTitle:{dashboard:'Dashboard', orders:'Đơn hàng', 'new-order':'Đơn mới', costs:'Chi phí', receipt:'Quét hoá đơn', products:'Sản phẩm', inventory:'Tồn kho'},
+  },
+  en: {
+    nav1:'Dashboard', nav2:'Orders', nav3:'New Order', nav4:'Costs', nav5:'Scan Receipt', nav6:'Products', nav7:'Inventory',
+    kl_rev:'Revenue', ks_rev:'Total in', kl_cost:'Costs', ks_cost:'Total out',
+    kl_profit:'Profit', ks_profit:'Net', kl_orders:'Orders', ks_orders:'Total orders',
+    chartLbl:'Revenue & Costs by month', legendRev:'Revenue', legendCost:'Costs',
+    recentLbl:'Recent transactions', ordersListLbl:'All orders',
+    newOrderLbl:'New order entry', custLbl:'Customer / Note', dateLbl:'Date',
+    typeLbl:'Order type', payLbl:'Payment', staffLbl:'Staff',
+    colProd:'Product', colQty:'Qty', colWeight:'Weight (g)', colPrice:'Unit price (₫)', colDisc:'Discount (₫)',
+    addLine:'+ Add item', totalLbl:'Total', clearOrd:'Clear', saveOrd:'💾 Save Order → Excel',
+    costsLbl:'Costs', catAll:'All categories',
+    receiptLbl:'Scan receipt with AI',
+    receiptSub:'Take a photo of a receipt — AI identifies costs and saves them to Excel.',
+    uploadTxt:'Tap to take a photo or choose from gallery', uploadSub:'JPG, PNG · Phone camera',
+    productsLbl:'Products / Menu', addProdBtn:'+ Add product', newProdLbl:'Add new product', saveProd:'💾 Save → Excel',
+    invLbl:'Inventory',
+    scanning:'Scanning...', done:'Done', errScan:'Scan error',
+    aiFound:'AI identified:', noItems:'No items found.',
+    confirmCosts:'Confirm & Save to Excel', cancelScan:'Cancel',
+    saved:'Saved to Excel!', orderSaved:'Order saved to Excel!', prodSaved:'Product saved to Excel!',
+    delConf:'Delete this item?', revenue:'Revenue', cost:'Cost',
+    pageTitle:{dashboard:'Dashboard', orders:'Orders', 'new-order':'New Order', costs:'Costs', receipt:'Scan Receipt', products:'Products', inventory:'Inventory'},
+  }
+};
+function t(k) { return T[lang][k] || k; }
+
+function setLang(l) {
+  lang = l;
+  document.getElementById('btn-vi').className = 'lang-btn' + (l==='vi'?' active':'');
+  document.getElementById('btn-en').className = 'lang-btn' + (l==='en'?' active':'');
+  applyLang();
+}
+function applyLang() {
+  ['nav1','nav2','nav3','nav4','nav5','nav6','nav7',
+   'kl_rev','ks_rev','kl_cost','ks_cost','kl_profit','ks_profit','kl_orders','ks_orders',
+   'chartLbl','legendRev','legendCost','recentLbl','ordersListLbl','newOrderLbl',
+   'custLbl','dateLbl','typeLbl','payLbl','staffLbl','colProd','colQty','colWeight','colPrice','colDisc',
+   'addLine','totalLbl','clearOrd','saveOrd','costsLbl','catAll','receiptLbl','receiptSub',
+   'uploadTxt','uploadSub','productsLbl','addProdBtn','newProdLbl','saveProd','invLbl'
+  ].forEach(k => {
+    const el = document.getElementById('t-' + k.replace('_','-'));
+    if (el) el.textContent = t(k);
+  });
+}
+
+// ── Panel switching ───────────────────────────────────────────────────────────
+const PANELS = ['dashboard','orders','new-order','costs','receipt','products','inventory'];
+function showPanel(name) {
+  PANELS.forEach(p => {
+    document.getElementById('panel-'+p)?.classList.remove('active');
+    document.getElementById('nav-'+p)?.classList.remove('active');
+  });
+  document.getElementById('panel-'+name)?.classList.add('active');
+  document.getElementById('nav-'+name)?.classList.add('active');
+  const titles = t('pageTitle');
+  document.getElementById('t-pageTitle').textContent = titles[name] || name;
+  if (name==='dashboard')  loadDashboard();
+  if (name==='orders')     loadOrders();
+  if (name==='costs')      loadCosts();
+  if (name==='products')   loadProducts();
+  if (name==='inventory')  loadInventory();
+  if (name==='new-order')  { loadProducts(); resetOrderForm(); }
+}
+
+// ── Formatting ────────────────────────────────────────────────────────────────
+function vnd(n) { return '₫' + Math.round(n||0).toLocaleString('vi-VN'); }
+function pct(n) { return (n*100).toFixed(1) + '%'; }
+function toast(msg, ms=2800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), ms);
+}
+
+// ── Server health check ───────────────────────────────────────────────────────
+async function checkServer() {
+  try {
+    const r = await fetch(API + '/dashboard', {signal: AbortSignal.timeout(3000)});
+    if (r.ok) {
+      document.getElementById('statusDot').className  = 'status-dot';
+      document.getElementById('statusText').textContent = 'Excel connected';
+      return true;
+    }
+  } catch {}
+  document.getElementById('statusDot').className  = 'status-dot offline';
+  document.getElementById('statusText').textContent = 'Server offline';
+  return false;
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const [dash, monthly, orders, costs] = await Promise.all([
+      fetch(API+'/dashboard').then(r=>r.json()),
+      fetch(API+'/monthly').then(r=>r.json()),
+      fetch(API+'/orders').then(r=>r.json()),
+      fetch(API+'/costs').then(r=>r.json()),
+    ]);
+    const kv = document.getElementById('kv-profit');
+    document.getElementById('kv-rev').textContent    = vnd(dash.revenue);
+    document.getElementById('kv-cost').textContent   = vnd(dash.costs);
+    kv.textContent = vnd(dash.profit);
+    kv.className   = 'metric-value ' + (dash.profit >= 0 ? 'green' : 'red');
+    document.getElementById('kv-orders').textContent = dash.orders;
+    renderChart(monthly);
+    renderRecent(orders, costs);
+  } catch(e) {
+    document.getElementById('kpi-bar').innerHTML = '<div class="empty" style="grid-column:1/-1">Cannot connect to server. Make sure server.py is running on port 5050.</div>';
+  }
+}
+
+function renderChart(monthly) {
+  const labels = monthly.map(m => m.month);
+  const revs   = monthly.map(m => Math.round(m.revenue));
+  const costs  = monthly.map(m => Math.round(m.costs));
+  const ctx    = document.getElementById('monthlyChart');
+  if (!ctx) return;
+  if (monthlyChart) { monthlyChart.destroy(); }
+  if (!labels.length) {
+    ctx.parentElement.innerHTML = '<div class="empty">No data yet</div>';
+    return;
+  }
+  monthlyChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: t('legendRev'), data: revs,  backgroundColor: '#4a9b6f', borderRadius: 4 },
+        { label: t('legendCost'), data: costs, backgroundColor: '#c0392b', borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { callback: v => '₫' + (v/1000).toFixed(0)+'k', font:{size:11} }, grid:{color:'rgba(92,80,53,0.1)'} },
+        x: { ticks: { font:{size:11} }, grid:{ display:false } }
+      }
+    }
+  });
+}
+
+function renderRecent(orders, costs) {
+  const el = document.getElementById('recent-table');
+  const rows = [];
+  orders.slice(0,5).forEach(o => rows.push({date:o.date, desc:(o.customer||'')+' — '+o.items.map(i=>i.product_name).join(', '), type:'rev', amt:o.total}));
+  costs.slice(0,5).forEach(c => rows.push({date:c.date, desc:c.item, type:'cost', amt:c.total_cost}));
+  rows.sort((a,b)=>b.date.localeCompare(a.date));
+  if (!rows.length) { el.innerHTML = '<div class="empty">No transactions yet.</div>'; return; }
+  el.innerHTML = '<table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th class="amt">Amount</th></tr></thead><tbody>' +
+    rows.slice(0,10).map(r=>`<tr>
+      <td>${r.date}</td><td>${r.desc||''}</td>
+      <td><span class="badge ${r.type==='rev'?'badge-rev':'badge-cost'}">${r.type==='rev'?t('revenue'):t('cost')}</span></td>
+      <td class="amt">${r.type==='cost'?'-':''}${vnd(r.amt)}</td>
+    </tr>`).join('') + '</tbody></table>';
+}
+
+// ── ORDERS ────────────────────────────────────────────────────────────────────
+async function loadOrders() {
+  const wrap = document.getElementById('orders-table');
+  wrap.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    allOrders = await fetch(API+'/orders').then(r=>r.json());
+    renderOrders(allOrders);
+  } catch { wrap.innerHTML = '<div class="empty">Server offline.</div>'; }
+}
+function filterOrders() {
+  const q = document.getElementById('orderSearch').value.toLowerCase();
+  renderOrders(allOrders.filter(o => (o.customer||'').toLowerCase().includes(q) || o.id.toLowerCase().includes(q)));
+}
+function renderOrders(orders) {
+  const wrap = document.getElementById('orders-table');
+  if (!orders.length) { wrap.innerHTML = '<div class="empty">No orders found.</div>'; return; }
+  wrap.innerHTML = '<table><thead><tr><th>ID</th><th>Date</th><th>Customer</th><th>Type</th><th>Items</th><th class="amt">Total</th><th>Payment</th><th>Del</th></tr></thead><tbody>' +
+    orders.map(o=>`<tr>
+      <td style="font-variant-numeric:tabular-nums;font-weight:500;">${o.id}</td>
+      <td>${o.date}</td><td>${o.customer||''}</td>
+      <td>${o.order_type||''}</td>
+      <td style="font-size:0.75rem;color:var(--olive-dark);">${o.items.map(i=>i.product_name+' x'+i.qty).join(', ')}</td>
+      <td class="amt profit-pos">${vnd(o.total)}</td>
+      <td>${o.payment||''}</td>
+      <td><button class="btn-danger-sm" onclick="deleteOrder('${o.id}')">✕</button></td>
+    </tr>`).join('') + '</tbody></table>';
+}
+async function deleteOrder(id) {
+  if (!confirm(t('delConf'))) return;
+  await fetch(API+'/orders/'+id, {method:'DELETE'});
+  toast(t('saved')); loadOrders(); loadDashboard();
+}
+
+// ── NEW ORDER FORM ────────────────────────────────────────────────────────────
+function resetOrderForm() {
+  document.getElementById('o-customer').value = '';
+  document.getElementById('o-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('o-type').value = 'Dine-in';
+  document.getElementById('o-payment').value = 'Cash';
+  document.getElementById('o-staff').value = '';
+  orderItemIds = [];
+  orderItemCount = 0;
+  document.getElementById('order-items-list').innerHTML = '';
+  addOrderItem();
+  recalcOrder();
+}
+function addOrderItem() {
+  const id = orderItemCount++;
+  orderItemIds.push(id);
+  const opts = products.map(p=>`<option value="${p.id}" data-price="${p.sell_price}" data-weight="${p.weight_g||''}" data-unit="${p.unit||''}">${p.name_en||p.name_vi} — ${vnd(p.sell_price)}</option>`).join('');
+  const div = document.createElement('div');
+  div.className = 'item-row'; div.id = 'item-row-'+id;
+  div.innerHTML = `
+    <select id="ir-prod-${id}" onchange="onProdChange(${id})">${opts || '<option>— Load products first —</option>'}</select>
+    <input type="number" min="1" value="1" id="ir-qty-${id}" oninput="recalcOrder()">
+    <input type="number" id="ir-weight-${id}" placeholder="g">
+    <input type="number" min="0" id="ir-price-${id}" placeholder="0" oninput="recalcOrder()">
+    <input type="number" min="0" value="0" id="ir-disc-${id}" oninput="recalcOrder()">
+    <button class="remove-btn" onclick="removeItem(${id})">✕</button>`;
+  document.getElementById('order-items-list').appendChild(div);
+  if (products.length) onProdChange(id);
+  recalcOrder();
+}
+function onProdChange(id) {
+  const sel = document.getElementById('ir-prod-'+id);
+  if (!sel) return;
+  const opt = sel.options[sel.selectedIndex];
+  document.getElementById('ir-price-'+id).value  = opt.dataset.price  || '';
+  document.getElementById('ir-weight-'+id).value = opt.dataset.weight || '';
+  recalcOrder();
+}
+function removeItem(id) {
+  document.getElementById('item-row-'+id)?.remove();
+  orderItemIds = orderItemIds.filter(i=>i!==id);
+  recalcOrder();
+}
+function recalcOrder() {
+  let total = 0;
+  orderItemIds.forEach(id => {
+    const qty   = parseFloat(document.getElementById('ir-qty-'+id)?.value||0);
+    const price = parseFloat(document.getElementById('ir-price-'+id)?.value||0);
+    const disc  = parseFloat(document.getElementById('ir-disc-'+id)?.value||0);
+    total += qty*price - disc;
+  });
+  document.getElementById('order-total-display').textContent = vnd(total);
+}
+async function submitOrder() {
+  const items = [];
+  for (const id of orderItemIds) {
+    const sel    = document.getElementById('ir-prod-'+id);
+    const qty    = parseFloat(document.getElementById('ir-qty-'+id)?.value||0);
+    const price  = parseFloat(document.getElementById('ir-price-'+id)?.value||0);
+    const disc   = parseFloat(document.getElementById('ir-disc-'+id)?.value||0);
+    const weight = document.getElementById('ir-weight-'+id)?.value||'';
+    if (!sel || qty<=0 || price<=0) continue;
+    const opt = sel.options[sel.selectedIndex];
+    items.push({ product_id:sel.value, product_name:opt.text.split(' — ')[0], unit:opt.dataset.unit||'', weight_g:weight, qty, unit_price:price, discount:disc });
+  }
+  if (!items.length) { alert('Please add at least one item.'); return; }
+  const payload = {
+    customer: document.getElementById('o-customer').value,
+    date:     document.getElementById('o-date').value,
+    order_type: document.getElementById('o-type').value,
+    payment:  document.getElementById('o-payment').value,
+    staff:    document.getElementById('o-staff').value,
+    items
+  };
+  const btn = document.getElementById('t-saveOrd');
+  btn.disabled = true; btn.textContent = '⏳ Saving...';
+  try {
+    const r = await fetch(API+'/orders', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    const d = await r.json();
+    toast(t('orderSaved'));
+    resetOrderForm();
+    showPanel('orders');
+  } catch { toast('Error — is server.py running?'); }
+  btn.disabled = false; btn.textContent = t('saveOrd');
+}
+
+// ── COSTS ─────────────────────────────────────────────────────────────────────
+async function loadCosts() {
+  const wrap = document.getElementById('costs-table');
+  wrap.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    allCosts = await fetch(API+'/costs').then(r=>r.json());
+    const cat = document.getElementById('costCatFilter').value;
+    const rows = cat ? allCosts.filter(c=>c.category===cat) : allCosts;
+    renderCosts(rows);
+  } catch { wrap.innerHTML = '<div class="empty">Server offline.</div>'; }
+}
+function renderCosts(costs) {
+  const wrap = document.getElementById('costs-table');
+  if (!costs.length) { wrap.innerHTML = '<div class="empty">No costs recorded yet.</div>'; return; }
+  wrap.innerHTML = '<table><thead><tr><th>ID</th><th>Date</th><th>Supplier</th><th>Category</th><th>Item</th><th>Qty</th><th>Unit</th><th class="amt">Total (₫)</th><th>Receipt</th><th>Del</th></tr></thead><tbody>' +
+    costs.map(c=>`<tr>
+      <td style="font-size:0.75rem;color:var(--olive-dark);">${c.id}</td>
+      <td>${c.date}</td><td>${c.supplier||''}</td>
+      <td><span class="badge badge-cost">${c.category||''}</span></td>
+      <td>${c.item||''}</td>
+      <td>${c.quantity||''}</td><td>${c.unit||''}</td>
+      <td class="amt profit-neg">−${vnd(c.total_cost)}</td>
+      <td style="font-size:0.75rem;">${c.receipt_ref||''}</td>
+      <td><button class="btn-danger-sm" onclick="deleteCost('${c.id}')">✕</button></td>
+    </tr>`).join('') + '</tbody></table>';
+}
+async function deleteCost(id) {
+  if (!confirm(t('delConf'))) return;
+  await fetch(API+'/costs/'+id, {method:'DELETE'});
+  toast(t('saved')); loadCosts(); loadDashboard();
+}
+
+// ── RECEIPT SCANNER ───────────────────────────────────────────────────────────
+function handleReceipt(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('receipt-img-area').innerHTML = `<img src="${e.target.result}" class="img-preview">`;
+    document.getElementById('receipt-status-area').innerHTML = `<div class="pill pill-scan"><span class="spinner"></span>${t('scanning')}</div>`;
+    document.getElementById('receipt-result-area').innerHTML = '';
+    document.getElementById('receipt-action-area').innerHTML = '';
+    scanReceipt(e.target.result.split(',')[1], file.type||'image/jpeg');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function scanReceipt(base64, mimeType) {
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1000,
+        messages: [{ role:'user', content:[
+          { type:'image', source:{ type:'base64', media_type:mimeType, data:base64 } },
+          { type:'text', text:`You are a finance assistant for "Lovely Oven" restaurant in Vietnam. Analyse this receipt and extract all line items as business costs. Return ONLY a JSON array, no markdown. Each item: {"name":"item name","amount":integer_vnd,"category":"ingredients|utilities|packaging|equipment|other","quantity":number,"unit":"kg|g|pcs|litre|etc"}. Convert foreign currency to VND if needed. Return [] if not a receipt.` }
+        ]}]
+      })
+    });
+    const data = await resp.json();
+    let items = [];
+    try { items = JSON.parse((data.content?.[0]?.text||'[]').replace(/```json|```/g,'')); } catch {}
+    receiptAiItems = items;
+    showReceiptResult(items);
+  } catch(err) {
+    document.getElementById('receipt-status-area').innerHTML = `<div class="pill pill-err">${t('errScan')}: ${err.message}</div>`;
+  }
+}
+
+function showReceiptResult(items) {
+  document.getElementById('receipt-status-area').innerHTML = `<div class="pill pill-done">✓ ${t('done')}</div>`;
+  const res = document.getElementById('receipt-result-area');
+  if (!items.length) { res.innerHTML = `<div class="empty">${t('noItems')}</div>`; return; }
+  const today = new Date().toISOString().slice(0,10);
+  const total = items.reduce((s,i)=>s+i.amount,0);
+  res.innerHTML = `<div class="ai-box"><div class="ai-box-title">${t('aiFound')}</div>
+    ${items.map((item,i)=>`<div class="ai-item">
+      <input type="text" value="${item.name}" id="ai-n-${i}" style="font-size:0.82rem;">
+      <span class="ai-cat">${item.category}</span>
+      <input type="number" value="${item.amount}" id="ai-a-${i}" style="text-align:right;" oninput="updateAiTotal()">
+    </div>`).join('')}
+    <div class="order-total-bar" style="margin-top:10px;"><span>${t('totalLbl')}</span><span class="order-total-val" id="ai-total">${vnd(total)}</span></div>
+  </div>`;
+  document.getElementById('receipt-action-area').innerHTML = `
+    <div class="form-group" style="margin-bottom:10px;"><label>${t('dateLbl')}</label><input type="date" id="receipt-date" value="${today}" style="width:200px;"></div>
+    <div class="form-group" style="margin-bottom:10px;"><label>Supplier / NCC</label><input type="text" id="receipt-supplier" placeholder="Chợ Đà Nẵng..."></div>
+    <div class="form-group" style="margin-bottom:10px;"><label>Receipt Ref</label><input type="text" id="receipt-ref" placeholder="RCP001..."></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="cancelReceipt()">${t('cancelScan')}</button>
+      <button class="btn btn-accent" onclick="saveReceiptCosts()">${t('confirmCosts')}</button>
+    </div>`;
+}
+
+function updateAiTotal() {
+  let total = 0;
+  receiptAiItems.forEach((_,i) => { total += parseFloat(document.getElementById('ai-a-'+i)?.value||0); });
+  const el = document.getElementById('ai-total');
+  if (el) el.textContent = vnd(total);
+}
+
+async function saveReceiptCosts() {
+  const date     = document.getElementById('receipt-date')?.value || new Date().toISOString().slice(0,10);
+  const supplier = document.getElementById('receipt-supplier')?.value || '';
+  const ref      = document.getElementById('receipt-ref')?.value || '';
+  const payload  = receiptAiItems.map((item,i) => ({
+    date, supplier, item: document.getElementById('ai-n-'+i)?.value || item.name,
+    total_cost: parseFloat(document.getElementById('ai-a-'+i)?.value||item.amount),
+    category: item.category, quantity: item.quantity||1, unit: item.unit||'',
+    receipt_ref: ref, paid_by:'Cash',
+  })).filter(x=>x.total_cost>0);
+  if (!payload.length) return;
+  const btn = document.querySelector('#receipt-action-area .btn-accent');
+  if (btn) { btn.disabled=true; btn.textContent='⏳ Saving...'; }
+  try {
+    await fetch(API+'/costs', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    toast(t('saved'));
+    cancelReceipt();
+    showPanel('costs');
+  } catch { toast('Error — is server.py running?'); if (btn) { btn.disabled=false; btn.textContent=t('confirmCosts'); } }
+}
+
+function cancelReceipt() {
+  document.getElementById('receipt-img-area').innerHTML = '';
+  document.getElementById('receipt-status-area').innerHTML = '';
+  document.getElementById('receipt-result-area').innerHTML = '';
+  document.getElementById('receipt-action-area').innerHTML = '';
+  document.getElementById('receiptFile').value = '';
+  receiptAiItems = [];
+}
+
+// ── PRODUCTS ──────────────────────────────────────────────────────────────────
+async function loadProducts() {
+  const wrap = document.getElementById('products-table');
+  try {
+    products = await fetch(API+'/products').then(r=>r.json());
+    if (!products.length) { wrap.innerHTML = '<div class="empty">No products yet.</div>'; return; }
+    wrap.innerHTML = '<table><thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Unit</th><th>Weight</th><th class="amt">Cost (₫)</th><th class="amt">Sell (₫)</th><th class="amt">Margin</th><th>Active</th></tr></thead><tbody>' +
+      products.map(p=>`<tr>
+        <td style="font-size:0.75rem;color:var(--olive-dark);">${p.id}</td>
+        <td><strong style="font-size:0.85rem;">${p.name_en}</strong><br><span style="font-size:0.72rem;color:var(--olive-dark);">${p.name_vi||''}</span></td>
+        <td>${p.category||''}</td><td>${p.unit||''}</td>
+        <td>${p.weight_g||''}g</td>
+        <td class="amt">${vnd(p.cost_price)}</td>
+        <td class="amt profit-pos">${vnd(p.sell_price)}</td>
+        <td class="amt">${pct(p.margin)}</td>
+        <td>${p.active==='Y'?'✓':''}</td>
+      </tr>`).join('') + '</tbody></table>';
+  } catch { wrap.innerHTML = '<div class="empty">Server offline.</div>'; }
+}
+function showPanel_newProduct() {
+  document.getElementById('new-product-card').style.display = 'block';
+}
+async function submitProduct() {
+  const payload = {
+    name_en:    document.getElementById('p-name-en').value,
+    name_vi:    document.getElementById('p-name-vi').value,
+    category:   document.getElementById('p-cat').value,
+    unit:       document.getElementById('p-unit').value,
+    weight_g:   document.getElementById('p-weight').value,
+    cost_price: parseFloat(document.getElementById('p-cost').value||0),
+    sell_price: parseFloat(document.getElementById('p-sell').value||0),
+    description:document.getElementById('p-desc').value,
+    active:'Y',
+  };
+  if (!payload.name_en && !payload.name_vi) { alert('Please enter a product name.'); return; }
+  const btn = document.getElementById('t-saveProd');
+  btn.disabled=true; btn.textContent='⏳ Saving...';
+  try {
+    await fetch(API+'/products', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    toast(t('prodSaved'));
+    document.getElementById('new-product-card').style.display='none';
+    loadProducts();
+  } catch { toast('Error — is server.py running?'); }
+  btn.disabled=false; btn.textContent=t('saveProd');
+}
+
+// ── INVENTORY ─────────────────────────────────────────────────────────────────
+async function loadInventory() {
+  const wrap = document.getElementById('inventory-table');
+  try {
+    const inv = await fetch(API+'/inventory').then(r=>r.json());
+    if (!inv.length) { wrap.innerHTML = '<div class="empty">No inventory data.</div>'; return; }
+    wrap.innerHTML = '<table><thead><tr><th>ID</th><th>Name</th><th>Category</th><th>Unit</th><th>Stock</th><th>Min</th><th>Reorder</th><th class="amt">Cost/Unit</th><th class="amt">Stock Value</th><th>Supplier</th><th>Status</th></tr></thead><tbody>' +
+      inv.map(i=>`<tr>
+        <td style="font-size:0.75rem;color:var(--olive-dark);">${i.id}</td>
+        <td><strong>${i.name_en}</strong><br><span style="font-size:0.72rem;color:var(--olive-dark);">${i.name_vi||''}</span></td>
+        <td>${i.category||''}</td><td>${i.unit||''}</td>
+        <td style="font-weight:500;">${i.stock}</td>
+        <td style="color:var(--olive-dark);">${i.min_stock}</td>
+        <td style="color:var(--olive-dark);">${i.reorder}</td>
+        <td class="amt">${vnd(i.cost_per_unit)}</td>
+        <td class="amt">${vnd(i.stock_value)}</td>
+        <td>${i.supplier||''}</td>
+        <td><span class="badge ${i.status==='OK'?'badge-ok':i.status==='LOW'?'badge-low':'badge-reorder'}">${i.status}</span></td>
+      </tr>`).join('') + '</tbody></table>';
+  } catch { wrap.innerHTML = '<div class="empty">Server offline.</div>'; }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+document.getElementById('o-date').value = new Date().toISOString().slice(0,10);
+checkServer().then(() => loadDashboard());
+setInterval(checkServer, 15000);
+resetOrderForm();
+applyLang();
+</script>
+</body>
+</html>
